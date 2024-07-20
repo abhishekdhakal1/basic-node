@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   console.log("This is aweesome");
-  req.name = "Abhishek Dhakal"; // available in any middleware below it
+  req.name = "Example Name"; // available in any middleware below it
   //return res.json({status : "sent"});
   next();
 });
