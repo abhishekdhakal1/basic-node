@@ -6,9 +6,42 @@
 const express = require("express");
 const users = require("./MOCK_DATA.json");
 const fs = require("fs");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { type } = require("os");
 
 const app = express();
+
+//connection
+mongoose
+  .connect("mongodb://127.0.0.1:27017/newdb")
+  .then(() => console.log("mongodb connected"))
+  .catch((err) => console.log("mongo err", err));
+
+//schema
+const userSchema = new mongoose.Schema({
+  firstName: {
+    type: String,
+    require: true,
+  },
+  lastNmae: {
+    type: String,
+  },
+  email: {
+    type: String,
+    require: true,
+    unique: true,
+  },
+  jobTitle: {
+    type: String,
+  },
+  gender: {
+    type: String,
+  },
+});
+
+//model
+
+const User = mongoose.model("user", userSchema);
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -50,15 +83,21 @@ app.get("/users", (req, res) => {
   res.send(html);
 });
 
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
+  
   const body = req.body;
   if (!body || !body.first_name || !body.last_name || !body.email) {
-    res.status(400).json({ msg: "all fiels are required" });
+    res.status(400).json({ msg: "all fiels are required..." });
   }
-  users.push({ ...body, id: users.length + 1 });
-  fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
-    return res.status(201).json({ status: "success", id: users.length });
+  const result = await User.create({
+    firstName: body.first_name,
+    lastNmae: body.last_name,
+    email: body.email,
   });
+
+  console.log("result", result);
+
+  return res.status(201).json({ msg: "success" });
 });
 
 //const myServer = http.createServer(app);
